@@ -1,68 +1,111 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# todolist-redux项目技术实现
 
-## Available Scripts
+## 1.安装
 
-In the project directory, you can run:
+```js
+npm install redux react-redux
+```
 
-### `yarn start`
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## 2.mapStateToprops
 
-### `yarn test`
+```js
+//mapStateToProps：把state映射给props，而state就是指store里面的数据
+// 处理数据的
+const mapStateToProps = (state) => {
+    // 返回一个对象
+    return {
+        inputValue: state.inputValue,
+        // 数据映射
+        list: state.list,
+        index: state.index
+    }
+}
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 3.mapDispatchToProps
 
-### `yarn build`
+```js
+//mapDispatchToProps：把store.dispatch方法挂载到props上面
+// 处理方法的
+const mapDispatchToProps = (dispatch) => {
+    return {
+        changeInputValue(e){
+            // console.log(e.target.value)
+            // action传递的是验证身份
+            const action  = {
+                type: 'change_input_value',
+                value: e.target.value
+            } 
+            // 最后添加到dispatch上
+            dispatch(action)
+        },
+        handleAddValue(){
+            const action = {
+                type: 'add_item'
+            }
+            dispatch(action)
+        },
+        // 删除功能
+        handleDelete(index){
+            const action = {
+                type: 'delete_item',
+                index
+            }
+            dispatch(action)
+        }
+    }
+}
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 4.connect
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+```jsx
+//connect是react-redux中提供的API接口做联调的，store数据传递，提供两个参数当做数据传递
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 5.Provider提供者
 
-### `yarn eject`
+```js
+const App = (
+    <Provider store={ store }>
+        <TodoList />
+    </Provider>
+)
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 6.创建store文件夹
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```js
+// index.js文件
+import { createStore } from 'redux'
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+import reducer from './reducer'
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+const store = createStore(reducer)
 
-## Learn More
+export default store;
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+// reducer.js文件
+const defaultState = {
+    inputValue: '',
+    list: []
+}
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+export default (state = defaultState, action) => {
+    if(action.type === 'change_input_value'){
+        // 数据的深拷贝
+        const newState = JSON.parse(JSON.stringify(state))
+        newState.inputValue = action.value
+        return newState
+    }
+    return state;
+}
 
-### Code Splitting
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
 
-### Analyzing the Bundle Size
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## 7.
